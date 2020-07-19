@@ -31,6 +31,7 @@ addons:
       - mysql-client-core-5.6
 
 before_install:
+<<<<<<< HEAD
   - export ENSEMBL_BRANCH=master
   - git clone --branch $ENSEMBL_BRANCH --depth 1 https://github.com/Ensembl/ensembl-test.git
   - git clone --branch $ENSEMBL_BRANCH --depth 1 https://github.com/Ensembl/ensembl.git
@@ -38,6 +39,13 @@ before_install:
   - git clone --branch $ENSEMBL_BRANCH --depth 1 https://github.com/Ensembl/ensembl-funcgen.git
   - git clone --branch $ENSEMBL_BRANCH --depth 1 https://github.com/Ensembl/ensembl-variation.git
 
+=======
+  - git clone --branch release/92 --depth 1 https://github.com/Ensembl/ensembl-test.git
+  - git clone --branch release/92 --depth 1 https://github.com/Ensembl/ensembl.git
+  - git clone --branch release/92 --depth 1 https://github.com/Ensembl/ensembl-io.git
+  - git clone --branch release/92 --depth 1 https://github.com/Ensembl/ensembl-funcgen.git
+  - git clone --branch release/92 --depth 1 https://github.com/Ensembl/ensembl-variation.git
+>>>>>>> 75ef353
   - export CWD=$PWD
   - export DEPS=$HOME/dependencies
   - mkdir -p $DEPS

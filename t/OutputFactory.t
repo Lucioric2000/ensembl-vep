@@ -1467,7 +1467,8 @@ is_deeply(
     @{$of->filter_StructuralVariationOverlapAlleles(\@vfoas)}
   ],
   [
-    'ENSR00000140751', 'ENST00000307301',
+#    'ENSR00000140751', 'ENST00000307301',
+    'ENSR00001963192', 'ENST00000307301', 'ENST00000567517'
   ],
   'SV - filter_StructuralVariationOverlapAlleles - flag_pick_allele_gene check'
 );
@@ -1946,7 +1947,7 @@ my $input_file_example = $test_cfg->create_input_file([qw(21 25592985 hgvsins A 
 $ib = get_annotated_buffer({
   input_file => $input_file_example,
   shift_hgvs => 1,
-  shift_length => 1, 
+#  shift_length => 1, 
 },1);
 
 $vfoa = $of->get_all_VariationFeatureOverlapAlleles($ib->buffer->[0])->[0];
