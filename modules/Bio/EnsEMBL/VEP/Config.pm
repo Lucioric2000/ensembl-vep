@@ -349,7 +349,13 @@ our @OPTION_SETS = (
       bam_edited => 1,
     }
   },
-
+  {
+    flags => ['mane'],
+    set   => {
+      mane_select => 1,
+      mane_plus_clinical => 1,
+    }
+  },
   {
     flags => ['use_given_ref'],
     set   => {
@@ -381,7 +387,7 @@ our %REQUIRES = (
 our %INCOMPATIBLE = (
   most_severe => [qw(biotype no_intergenic protein symbol sift polyphen coding_only ccds mane canonical xref_refseq numbers domains tsl appris uniprot summary pick flag_pick pick_allele flag_pick_allele)],
   summary     => [qw(biotype no_intergenic protein symbol sift polyphen coding_only ccds mane canonical xref_refseq numbers domains tsl appris uniprot most_severe pick flag_pick pick_allele flag_pick_allele)],
-  database    => [qw(af_1kg af_esp af_exac af_gnomad max_af pubmed offline cache)],
+  database    => [qw(af_1kg af_esp af_exac af_gnomad max_af pubmed var_synonyms offline cache)],
   quiet       => [qw(verbose)],
   refseq      => [qw(gencode_basic merged)],
   json        => [qw(vcf tab)],

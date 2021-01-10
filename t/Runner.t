@@ -200,12 +200,16 @@ is_deeply($runner->get_OutputFactory, bless( {
   'hgvsp' => undef,
   'hgvsg' => undef,
   'hgvsg_use_accession' => undef,
+  'remove_hgvsp_version' => undef,
   'spdi' => undef,
   'merged' => undef,
   'af_1kg' => undef,
   'tsl' => undef,
   'pubmed' => undef,
   'mane' => undef,
+  'mane_select' => undef,
+  'mane_plus_clinical' => undef,
+  'spdi'  => undef,
   'header_info' => $info,
   'plugins' => [],
   'no_stats' => 1,
@@ -222,6 +226,7 @@ is_deeply($runner->get_OutputFactory, bless( {
   'shift_3prime' => undef,
   'vcf_string' => undef,
   'clin_sig_allele' => 1,
+  'var_synonyms' => undef,
 }, 'Bio::EnsEMBL::VEP::OutputFactory::VEP_output' ), 'get_OutputFactory');
 
 

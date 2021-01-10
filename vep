@@ -104,6 +104,8 @@ GetOptions(
   'clin_sig_allele=i',       # use allele specific clinical significance data where it exists
   'overlaps',                # report length and percent of a transcript or regulatory feature overlaped with a SV
   'max_sv_size=i',           # modify the size of structural variant to be handled (limited by default to reduce memory requirements)
+  'remove_hgvsp_version',    # removes translation version from hgvs_protein output 
+
 
   # verbosity options
   'verbose|v',               # print out a bit more info while running
@@ -124,7 +126,8 @@ GetOptions(
   'terms|t=s',               # consequence terms to use e.g. NCBI, SO
   'coding_only',             # only return results for consequences in coding regions
   'canonical',               # indicates if transcript is canonical
-  'mane',                    # output mane transcript status
+  'mane',                    # output mane transcript value
+  'mane_select',             # output mane select transcript value
   'tsl',                     # output transcript support level
   'appris',                  # output APPRIS transcript annotation
   'ccds',                    # output CCDS identifer
@@ -137,6 +140,7 @@ GetOptions(
   'transcript_version',      # add transcript version to stable id in feature column
   'gene_phenotype',          # indicate if genes are phenotype-associated
   'mirna',                   # identify miRNA structural elements overlapped by variant
+  'spdi',                    # add genomic SPDI
   'hgvs',                    # add HGVS names to extra column
   'hgvsg',                   # add HGVS g. also
   'hgvsg_use_accession',     # force HGVSg to return on chromosome accession instead of input chr name
@@ -167,6 +171,7 @@ GetOptions(
   'show_ref_allele',         # indicate reference allele
   'no_escape',               # don't percent-escape HGVS strings
   'ambiguity',               # Add allele ambiguity code
+  'var_synonyms', 	     # include variation synonyms in output
   'shift_3prime=i',          # enables shifting of all variants to 3prime
   'shift_genomic',           # adds genomic shifting to output, and provides shifting of intergenic variants
   'shift_length',	     # adds the length of the transcript directional shift to output

@@ -70,7 +70,6 @@ package Bio::EnsEMBL::VEP::OutputFactory;
 use base qw(Bio::EnsEMBL::VEP::BaseVEP);
 
 use Scalar::Util qw(looks_like_number);
-
 use Bio::EnsEMBL::Utils::Scalar qw(assert_ref);
 use Bio::EnsEMBL::Utils::Exception qw(throw warning);
 use Bio::EnsEMBL::Utils::Sequence qw(reverse_comp);
@@ -186,12 +185,15 @@ sub new {
     canonical
     biotype
     mane
+    mane_select
+    mane_plus_clinical
     tsl
     appris
     transcript_version
     gene_phenotype
     mirna
     ambiguity
+    var_synonyms
 
     total_length
     hgvsc
@@ -206,6 +208,7 @@ sub new {
     cell_type
     shift_3prime
     shift_genomic
+    remove_hgvsp_version
   )]);
 
   my $hashref = $_[0];
@@ -280,6 +283,7 @@ sub get_all_output_hashes_by_InputBuffer {
   # rejoin variants that have been split
   # this can happen when using --minimal
   $self->rejoin_variants_in_InputBuffer($buffer) if $buffer->rejoin_required;
+
 
   map {@{$self->reset_shifted_positions($_)}}
     @{$buffer->buffer};
@@ -998,6 +1002,9 @@ sub add_colocated_variant_info {
     # ID
     push @{$hash->{Existing_variation}}, $ex->{variation_name} if $ex->{variation_name};
 
+    # Variation Synonyms
+    push @{$hash->{VAR_SYNONYMS}}, $ex->{var_synonyms} if $self->{var_synonyms} && $ex->{var_synonyms}; 
+
     # Find allele specific clin_sig data if it exists
     if(defined($ex->{clin_sig_allele}) && $self->{clin_sig_allele} )
     {
@@ -1263,7 +1270,7 @@ sub VariationFeatureOverlapAllele_to_output_hash {
     $vf->{_spdi_genomic} = $vf->spdi_genomic(); 
       
     if(my $spdi = $vf->{_spdi_genomic}->{$hash->{Allele}}){
-      $hash->{spdi} = $spdi;  
+      $hash->{SPDI} = $spdi;  
     }
   }
 
@@ -1413,7 +1420,7 @@ sub BaseTranscriptVariationAllele_to_output_hash {
 
   # uniprot
   if($self->{uniprot}) {
-    for my $db(qw(swissprot trembl uniparc)) {
+    for my $db(qw(swissprot trembl uniparc uniprot_isoform)) {
       my $id = $tr->{'_'.$db};
       $id = undef if defined($id) && $id eq '-';
       $hash->{uc($db)} = [split(',', $id)] if defined($id);
@@ -1431,9 +1438,15 @@ sub BaseTranscriptVariationAllele_to_output_hash {
 
   # gene phenotype
   $hash->{GENE_PHENO} = 1 if $self->{gene_phenotype} && $tr->{_gene_phenotype};
-  if($self->{mane} && (my ($mane) = grep {$_->code eq 'MANE_Select'} @attribs)) {
+  if($self->{mane_select} && (my ($mane) = grep {$_->code eq 'MANE_Select'} @attribs)) {
     if(my $mane_value = $mane->value) {
-      $hash->{MANE} = $mane_value;
+      $hash->{MANE_SELECT} = $mane_value;
+    }
+  }
+
+  if($self->{mane_plus_clinical} && (my ($mane) = grep {$_->code eq 'MANE_Plus_Clinical'} @attribs)) {
+    if(my $mane_value = $mane->value) {
+      $hash->{MANE_PLUS_CLINICAL} = $mane_value;
     }
   }
   
@@ -1579,6 +1592,7 @@ sub TranscriptVariationAllele_to_output_hash {
     }
 
     if($self->{hgvsp}) {
+      $vfoa->{remove_hgvsp_version} = 1 if $self->{remove_hgvsp_version};
       my $hgvs_p = $vfoa->hgvs_protein;
       my $offset = $vfoa->hgvs_offset;
 
@@ -1732,11 +1746,19 @@ sub MotifFeatureVariationAllele_to_output_hash {
   # check that the motif has a binding matrix, if not there's not
   # much we can do so don't return anything
   return undef unless defined $mf->get_BindingMatrix;
-  my $matrix = $mf->stable_id;
+  my $matrix = $mf->get_BindingMatrix;
+  my $matrix_id = $matrix->stable_id;
 
+  my $mf_stable_id = $mf->stable_id;
   $hash->{Feature_type} = 'MotifFeature';
-  $hash->{Feature}      = $mf->stable_id;
-  $hash->{MOTIF_NAME}   = $matrix;
+  $hash->{Feature}      = $mf_stable_id;
+  $hash->{MOTIF_NAME}   = $matrix_id;
+  my @transcription_factors = ();
+  my $associated_transcription_factor_complexes = $matrix->{associated_transcription_factor_complexes};
+  foreach my $tfc (@{$associated_transcription_factor_complexes}) {
+    push @transcription_factors, $tfc->{display_name};
+  }
+  $hash->{TRANSCRIPTION_FACTORS} = \@transcription_factors;
   $hash->{STRAND}       = $mf->strand + 0;
   $hash->{CELL_TYPE}    = $self->get_cell_types($mf) if $self->{cell_type};
   $hash->{MOTIF_POS}    = $vfoa->motif_start if defined $vfoa->motif_start;
@@ -1887,7 +1909,7 @@ sub StructuralVariationOverlapAllele_to_output_hash {
   my $feature_type = (split '::', ref($feature))[-1];
 
   $hash->{Feature_type} = $feature_type;
-  $hash->{Feature}      = $feature_type eq 'MotifFeature' ? $feature->get_BindingMatrix->name : $feature->stable_id;
+  $hash->{Feature}      = $feature->stable_id;
 
   # work out overlap amounts
   my $overlap_start  = (sort {$a <=> $b} ($svf->start, $feature->start))[-1];
@@ -2115,7 +2137,6 @@ sub rejoin_variants_in_InputBuffer {
         foreach my $key(keys %{$vf->{$type} || {}}) {
           my $val = $vf->{$type}->{$key};
           $val->base_variation_feature($original);
-
           # rename the key they're stored under
           $original->{$type}->{$vf->{allele_string}.'_'.$key} = $val;
         }
@@ -2125,12 +2146,15 @@ sub rejoin_variants_in_InputBuffer {
       # there is only one, and no reference feature to key on
       # means we have to copy over alleles manually
       if(my $iv = $vf->{intergenic_variation}) {
-
+        my $bfvo = $original->{intergenic_variation};
         $iv->base_variation_feature($original);
 
         if(my $oiv = $original->{intergenic_variation}) {
-            push @{$oiv->{alt_alleles}}, @{$iv->{alt_alleles}};
-            $oiv->{_alleles_by_seq}->{$_->variation_feature_seq} = $_ for @{$oiv->{alt_alleles}};
+          foreach my $alt (@{$iv->{alt_alleles}}) {
+            $alt->base_variation_feature_overlap($bfvo);
+            push @{$oiv->{alt_alleles}}, $alt;
+          }
+          $oiv->{_alleles_by_seq}->{$_->variation_feature_seq} = $_ for @{$oiv->{alt_alleles}};
         }
 
         # this probably won't happen, but can't hurt to cover all bases

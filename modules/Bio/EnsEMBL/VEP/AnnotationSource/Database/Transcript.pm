@@ -650,21 +650,27 @@ sub prefetch_translation_ids {
     $tr->{_swissprot} = '-';
     my @entries = grep {$_->database eq 'Uniprot/SWISSPROT'} @{$tl->get_all_DBEntries};
     if(scalar @entries) {
-      $tr->{_swissprot} = join ",", map {$_->primary_id} @entries;
+      $tr->{_swissprot} = join ",", map {$_->display_id} @entries;
     }
 
     $tr->{_trembl} = '-';
     @entries = grep {$_->database eq 'Uniprot/SPTREMBL'} @{$tl->get_all_DBEntries};
     if(scalar @entries) {
-      $tr->{_trembl} = join ",", map {$_->primary_id} @entries;
+      $tr->{_trembl} = join ",", map {$_->display_id} @entries;
     }
-
 
     $tr->{_uniparc} = '-';
     @entries = grep {$_->database eq 'UniParc'} @{$tl->get_all_DBEntries};
     if(scalar @entries) {
-      $tr->{_uniparc} = join ",", map {$_->primary_id} @entries;
+      $tr->{_uniparc} = join ",", map {$_->display_id} @entries;
     }
+    
+    $tr->{_uniprot_isoform} = '-';
+    @entries = grep {$_->database eq 'Uniprot_isoform'} @{$tl->get_all_DBEntries};
+    if(scalar @entries) {
+      $tr->{_uniprot_isoform} = join ",", map {$_->display_id} @entries;
+    }
+
   }
 
   # Ensembl protein ID
@@ -739,11 +745,17 @@ sub info {
 
     # refseq
     if($self->{source_type} eq 'refseq') {
+
+      my $logic_name = 'refseq_import';
+      if($info{'assembly'} =~ /GRCh37/) {
+        $logic_name = 'refseq_import_grch38';
+      }
+
       if(my $refseq_mca = $self->get_adaptor('otherfeatures', 'metacontainer')) {
         my $sth = $refseq_mca->db->dbc->prepare(qq{
           SELECT CONCAT(db_version, IF(db_file IS NOT NULL, concat(' - ', db_file), ''))
           FROM analysis
-          WHERE logic_name = 'refseq_import'          
+          WHERE logic_name = '$logic_name'
         });
         $sth->execute;
 

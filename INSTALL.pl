@@ -895,7 +895,7 @@ sub install_biodbhts() {
   rmtree( $DEST_DIR.'/tmp' );
 
   #Now install Bio::DB::HTS proper
-  my $biodbhts_github_url = "https://github.com/Ensembl/Bio-HTS";
+  my $biodbhts_github_url = "https://github.com/Ensembl/Bio-DB-HTS";
   my $biodbhts_zip_github_url = "$biodbhts_github_url/archive/$BIOHTS_VERSION.zip";
   my $biodbhts_zip_download_file = $DEST_DIR.'/tmp/biodbhts.zip';
 
@@ -914,29 +914,6 @@ sub install_biodbhts() {
   print( " - making Bio::DB:HTS\n" );
   # patch makefile
   chdir $BIODBHTS_DIR;
-  rename 'Build.PL','Build.PL.orig' or die "Couldn't rename Build to Build.orig: $!";
-  open my $in, '<','Build.PL.orig'     or die "Couldn't open Build.PL.orig for reading: $!";
-  open my $out,'>','Build.PL.new' or die "Couldn't open Build.PL.new for writing: $!";
-
-  while (<$in>) {
-    chomp;
-    if (/LIBS/) {
-      s/#.+//;  # get rid of comments
-      $_ = "LIBS              => ['-L../htslib/ -lhts  -lz'],";
-    }
-
-    if (/INC/) {
-      s/#.+//;  # get rid of comments
-      $_ = "INC               => '-I. -I../htslib', ";
-    }
-  }
-  continue {
-    print $out $_,"\n";
-  }
-
-  close $in;
-  close $out;
-  rename 'Build.PL.new','Build.PL' or die "Couldn't rename Build.new to Build: $!";
   system "perl Build.PL --htslib $htslib_location";
   system "./Build";
   chdir ".";

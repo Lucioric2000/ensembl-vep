@@ -52,8 +52,8 @@ use warnings;
 
 use base qw(Exporter);
 
-our $VEP_VERSION     = 100;
-our $VEP_SUB_VERSION = 3;
+our $VEP_VERSION     = 104;
+our $VEP_SUB_VERSION = 0;
 
 our @EXPORT_OK = qw(
   @FLAG_FIELDS
@@ -75,17 +75,19 @@ our @FLAG_FIELDS = (
   { flag => 'flag_pick_allele_gene', fields => ['PICK'] },
   { flag => 'variant_class',   fields => ['VARIANT_CLASS']},
   { flag => 'minimal',         fields => ['MINIMISED']},
+  { flag => 'spdi',            fields => ['SPDI']},
 
   # gene-related
   { flag => 'symbol',          fields => ['SYMBOL','SYMBOL_SOURCE','HGNC_ID'] },
   { flag => 'biotype',         fields => ['BIOTYPE'] },
   { flag => 'canonical',       fields => ['CANONICAL'] },
-  { flag => 'mane',            fields => ['MANE']},
+  { flag => 'mane_select',     fields => ['MANE_SELECT']},
+  { flag => 'mane',            fields => ['MANE_SELECT', 'MANE_PLUS_CLINICAL']},
   { flag => 'tsl',             fields => ['TSL']},
   { flag => 'appris',          fields => ['APPRIS']},
   { flag => 'ccds',            fields => ['CCDS'] },
   { flag => 'protein',         fields => ['ENSP'] },
-  { flag => 'uniprot',         fields => ['SWISSPROT', 'TREMBL', 'UNIPARC'] },
+  { flag => 'uniprot',         fields => ['SWISSPROT', 'TREMBL', 'UNIPARC', 'UNIPROT_ISOFORM'] },
   { flag => 'xref_refseq',     fields => ['RefSeq'] },
   { flag => 'refseq',          fields => ['REFSEQ_MATCH', 'REFSEQ_OFFSET'] },
   { flag => 'merged',          fields => ['REFSEQ_MATCH', 'SOURCE', 'REFSEQ_OFFSET'] },
@@ -123,9 +125,10 @@ our @FLAG_FIELDS = (
   { flag => 'dont_skip',       fields => ['CHECK_REF'] },
   { flag => 'overlaps',        fields => ['OverlapBP', 'OverlapPC']},
   { flag => 'shift_length',    fields => ['SHIFT_LENGTH']},
+  { flag => 'var_synonyms',    fields => ['VAR_SYNONYMS']},
 
   # regulatory
-  { flag => 'regulatory',      fields => ['BIOTYPE','MOTIF_NAME','MOTIF_POS','HIGH_INF_POS','MOTIF_SCORE_CHANGE'] },
+  { flag => 'regulatory',      fields => ['BIOTYPE','MOTIF_NAME','MOTIF_POS','HIGH_INF_POS','MOTIF_SCORE_CHANGE', 'TRANSCRIPTION_FACTORS'] },
   { flag => 'cell_type',       fields => ['CELL_TYPE'] },
 );
 
@@ -148,7 +151,8 @@ our %FIELD_DESCRIPTIONS = (
   'Existing_variation' => 'Identifier(s) of co-located known variants',
   'IMPACT'             => 'Subjective impact classification of consequence type',
   'CANONICAL'          => 'Indicates if transcript is canonical for this gene',
-  'MANE'               => 'MANE (Matched Annotation by NCBI and EMBL-EBI) Transcript',
+  'MANE_SELECT'        => 'MANE Select (Matched Annotation from NCBI and EMBL-EBI) Transcript',
+  'MANE_PLUS_CLINICAL' => 'MANE Plus Clinical (Matched Annotation from NCBI and EMBL-EBI) Transcript',
   'TSL'                => 'Transcript support level',
   'APPRIS'             => 'Annotates alternatively spliced transcripts as primary or alternate based on a range of computational methods',
   'CCDS'               => 'Indicates if transcript is a CCDS transcript',
@@ -161,20 +165,23 @@ our %FIELD_DESCRIPTIONS = (
   'SWISSPROT'          => 'UniProtKB/Swiss-Prot accession',
   'TREMBL'             => 'UniProtKB/TrEMBL accession',
   'UNIPARC'            => 'UniParc accession',
+  'UNIPROT_ISOFORM'    => 'Direct mappings to UniProtKB isoforms',
   'NEAREST'            => 'Identifier(s) of nearest transcription start site',
   'miRNA'              => 'SO terms of overlapped miRNA secondary structure feature(s)',
   'HGVSc'              => 'HGVS coding sequence name',
   'HGVSp'              => 'HGVS protein sequence name',
   'HGVSg'              => 'HGVS genomic sequence name',
+  'SPDI'               => 'Genomic SPDI notation',
   'SIFT'               => 'SIFT prediction and/or score',
   'PolyPhen'           => 'PolyPhen prediction and/or score',
   'EXON'               => 'Exon number(s) / total',
   'INTRON'             => 'Intron number(s) / total',
   'DOMAINS'            => 'The source and identifer of any overlapping protein domains',
-  'MOTIF_NAME'         => 'The source and identifier of a transcription factor binding profile (TFBP) aligned at this position',
+  'MOTIF_NAME'         => 'The stable identifier of a transcription factor binding profile (TFBP) aligned at this position',
   'MOTIF_POS'          => 'The relative position of the variation in the aligned TFBP',
   'HIGH_INF_POS'       => 'A flag indicating if the variant falls in a high information position of the TFBP',
   'MOTIF_SCORE_CHANGE' => 'The difference in motif score of the reference and variant sequences for the TFBP',
+  'TRANSCRIPTION_FACTORS' => 'List of transcription factors which bind to the transcription factor binding profile',
   'CELL_TYPE'          => 'List of cell types and classifications for regulatory feature',
   'IND'                => 'Individual name',
   'ZYG'                => 'Zygosity of individual genotype at this locus',
@@ -214,6 +221,7 @@ our %FIELD_DESCRIPTIONS = (
   'BIOTYPE'            => 'Biotype of transcript or regulatory feature',
   'PUBMED'             => 'Pubmed ID(s) of publications that cite existing variant',
   'ALLELE_NUM'         => 'Allele number from input; 0 is reference, 1 is first alternate etc',
+  'VAR_SYNONYMS'       => 'List of known variation synonyms and their sources',
   'REF_ALLELE'         => 'Reference allele',
   'STRAND'             => 'Strand of the feature (1/-1)',
   'PICK'               => 'Indicates if this consequence has been picked as the most severe',

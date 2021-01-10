@@ -1280,7 +1280,7 @@ is_deeply(
 $of->{cell_type} = ['HUVEC'];
 is_deeply(
   $of->RegulatoryFeatureVariationAllele_to_output_hash($vfoa)->{CELL_TYPE},
-  ['HUVEC:ACTIVE'],
+  ['HUVEC:INACTIVE'],
   'RegulatoryFeatureVariationAllele_to_output_hash - cell_type'
 );
 $of->{cell_type} = undef;
@@ -1292,7 +1292,7 @@ $of->{cell_type} = undef;
 #############################################
 
 $ib = get_annotated_buffer({
-  input_file => $test_cfg->create_input_file([qw(21 25734924 . C T . . .)]),
+  input_file => $test_cfg->create_input_file([qw(21 25735354 . C T . . .)]),
   regulatory => 1,
 });
 
@@ -1306,13 +1306,14 @@ is_deeply(
     'Consequence' => [
       'TF_binding_site_variant'
     ],
-    'MOTIF_POS' => 5,
+    'MOTIF_POS' => 7,
     'Feature_type' => 'MotifFeature',
-    'MOTIF_NAME' => 'ENSM00000003250',
+    'MOTIF_NAME' => 'ENSPFM0042',
     'Allele' => 'T',
-    'Feature' => 'ENSM00000003250',
-    'HIGH_INF_POS' => 'Y',
-    'MOTIF_SCORE_CHANGE' => '-0.058'
+    'TRANSCRIPTION_FACTORS' => ['CTCF'],
+    'Feature' => 'ENSM00191005622',
+    'HIGH_INF_POS' => 'N',
+    'MOTIF_SCORE_CHANGE' => '-0.026'
   },
   'MotifFeatureVariationAllele_to_output_hash'
 );
@@ -1611,7 +1612,7 @@ $of->{flag_pick} = 0;
 
 # regulatory
 $ib = get_annotated_buffer({
-  input_file => $test_cfg->create_input_file([qw(21 25734924 . C . . . SVTYPE=DUP;END=25734925)]),
+  input_file => $test_cfg->create_input_file([qw(21 25735354 . C . . . SVTYPE=DUP;END=25735356)]),
   regulatory => 1,
 });
 
@@ -1624,10 +1625,10 @@ is_deeply(
     'Consequence' => [
       'TF_binding_site_variant'
     ],
-    'OverlapPC' => '7.14',
+    'OverlapPC' => '11.76',
     'Feature_type' => 'MotifFeature',
-    'OverlapBP' => 1,
-    'Feature' => 'EGR1_Y_TCTCTT20NGA_NMCGCCCMCGCANN_m2_c2_Cell2013',
+    'OverlapBP' => 2,
+    'Feature' => 'ENSM00191005622',
     'Allele' => 'duplication'
   },
   'SV - StructuralVariationOverlapAllele_to_output_hash - MotifFeature'
@@ -1642,9 +1643,9 @@ is_deeply(
     'Consequence' => [
       'regulatory_region_variant'
     ],
-    'OverlapPC' => '0.03',
+    'OverlapPC' => '0.04',
     'Feature_type' => 'RegulatoryFeature',
-    'OverlapBP' => 1,
+    'OverlapBP' => 2,
     'Feature' => 'ENSR00000140763',
     'Allele' => 'duplication'
   },
@@ -1654,7 +1655,7 @@ is_deeply(
 $of->{cell_type} = ['HUVEC'];
 is_deeply(
   $of->StructuralVariationOverlapAllele_to_output_hash($vfoa)->{CELL_TYPE},
-  ['HUVEC:ACTIVE'],
+  ['HUVEC:INACTIVE'],
   'SV - StructuralVariationOverlapAllele_to_output_hash - RegulatoryFeature cell_type'
 );
 $of->{cell_type} = undef;
@@ -1799,6 +1800,13 @@ is(scalar @{$ib->buffer}, 3, 'minimal - intergenic - expanded count');
 $of->rejoin_variants_in_InputBuffer($ib);
 
 is(scalar @{$ib->buffer}, 2, 'minimal - intergenic - rejoined count');
+
+foreach my $vf (@{$ib->buffer}) {
+  my $vfoas = $of->get_all_VariationFeatureOverlapAlleles($vf);
+  foreach my $vfoa (@{$vfoas}) {
+    is(ref($vfoa->base_variation_feature_overlap), 'Bio::EnsEMBL::Variation::IntergenicVariation', 'base_variation_feature_overlap is set after rejoin');
+  }
+}
 
 is_deeply(
   [map {$_->display_consequence} @{$ib->buffer}],

@@ -158,7 +158,7 @@ SKIP: {
   is(ref($features->[0]), 'HASH', 'get_all_features_by_InputBuffer ref 2');
   is(ref($features->[-1]), 'HASH', 'get_all_features_by_InputBuffer ref 3');
   is($features->[0]->{variation_name}, 'rs142513484', 'get_all_features_by_InputBuffer variation_name');
-  is(scalar @$features, 132, 'get_all_features_by_InputBuffer count');
+  is(scalar @$features, 133, 'get_all_features_by_InputBuffer count');
 
   # do it again to get them from memory
   $features = $as->get_all_features_by_InputBuffer($ib);
@@ -189,6 +189,7 @@ SKIP: {
       'variation_name' => 'rs142513484',
       'minor_allele' => 'T',
       'start' => 25585733,
+      'variation_id' => 28751744,
       'matched_alleles' => [{
         a_allele => 'T',
         a_index => 0,
@@ -229,6 +230,7 @@ SKIP: {
       'end' => 25891796,
       'variation_name' => 'rs63750066',
       'minor_allele' => 'T',
+      'variation_id' => 13264416,
       'start' => 25891796,
       'matched_alleles' => [{
         a_allele => 'T',

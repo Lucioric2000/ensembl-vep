@@ -208,8 +208,11 @@ sub _get_records_by_coords {
   my ($self, $c, $s, $e, $no_rescan) = @_;
 
   my $parser = $self->parser();
-  $parser->seek($c, $s - 1, $e + 1);
-  $parser->next();
+  if ($parser->seek($c, $s - 1, $e + 1)) {
+    $parser->next();
+  } else {
+    return;
+  }
 
   my $include = $self->include_feature_types;
 
@@ -503,6 +506,12 @@ sub _create_transcript {
     else {
       throw("ERROR: Transcript has unexpected type of child record: ".Dumper($child)."\n");
     }
+  }
+
+  # check for exons for protein_coding biotype
+  if ($biotype eq 'protein_coding' && scalar @exons == 0){
+    $self->warning_msg("WARNING: No exons found for protein_coding transcript $id");
+    return;
   }
 
   # sort exons
