@@ -3,4 +3,4 @@ conda install -y -c bioconda perl-dbi perl-dbd-mysql perl-archive-zip perl-json 
 conda install -y -c bioconda curl htslib perl-bio-db-hts libcurl libssh2 perl-base perl-cgi perl-compress-raw-bzip2
 conda install -y -c bioconda perl-encode perl-html-parser perl-html-tagset perl-io-compress perl-scalar-list-utils
 conda install -y -c bioconda perl-sereal perl-sereal-decoder perl-sereal-encoder perl-xsloader unzip
-conda install -y -c bioconda perl-module-build perl-bioperl perl-try-tiny perl-text-exception
+conda install -y -c bioconda perl-module-build perl-bioperl perl-try-tiny perl-text-exception perl-test-warnings

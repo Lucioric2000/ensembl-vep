@@ -37,7 +37,7 @@ SKIP: {
   skip 'Bio::DB::HTS::Tabix module not available or Set::IntervalTree not installed', 11 unless $Bio::EnsEMBL::VEP::AnnotationSource::File::CAN_USE_TABIX_PM && $Bio::EnsEMBL::VEP::AnnotationType::Transcript::CAN_USE_INTERVAL_TREE;
 
   # use test
-  use_ok('Bio::EnsEMBL::VEP::Haplo::AnnotationSource::File::GTF');
+  #use_ok('Bio::EnsEMBL::VEP::Haplo::AnnotationSource::File::GTF');
 
 
   use_ok('Bio::EnsEMBL::VEP::Haplo::Runner');

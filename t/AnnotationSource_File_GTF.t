@@ -38,7 +38,7 @@ SKIP: {
   ##############
 
   # use test
-  use_ok('Bio::EnsEMBL::VEP::AnnotationSource::File::GTF');
+  #use_ok('Bio::EnsEMBL::VEP::AnnotationSource::File::GTF');
 
   # need to get a config object for further tests
   use_ok('Bio::EnsEMBL::VEP::Runner');

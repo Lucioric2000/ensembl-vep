@@ -37,7 +37,7 @@ SKIP: {
   ##############
 
   # use test
-  use_ok('Bio::EnsEMBL::VEP::AnnotationSource::File::VCF');
+  #use_ok('Bio::EnsEMBL::VEP::AnnotationSource::File::VCF');
 
   my $file = $test_cfg->{custom_vcf};
 
