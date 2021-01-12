@@ -1093,7 +1093,7 @@ sub cache() {
     $ftp->binary();
 
     foreach my $sub(split /\//, $3) {
-      $ftp->cwd($sub) or die "ERROR: Could not change directory to $sub\n$@\n";
+      $ftp->cwd($sub) or die "ERROR: Could not change directory to $sub in $URL_TO_USE\n$@\n";
     }
 
     push @files, grep {$_ =~ /tar.gz/} $ftp->ls;
