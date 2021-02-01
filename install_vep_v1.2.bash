@@ -1,5 +1,5 @@
 conda_home=${CONDA_PREFIX:-/root/conda}
-sudo apt install gcc g++ git make
+sudo yum install gcc g++ git make
 rm -rf ensembl-vep
 git clone https://github.com/ensembl/ensembl-vep
 cd ensembl-vep
