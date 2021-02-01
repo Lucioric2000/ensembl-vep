@@ -2,8 +2,8 @@ conda_home=${CONDA_PREFIX:-/root/conda}
 sudo apt install gcc g++ git make
 rm -rf ensembl-vep
 git clone https://github.com/ensembl/ensembl-vep
-cd ensembl-vep
-git branch release/102
+cd ensembl-vep && git checkout release/102
+echo now in $(pwd)
 function conda_install(){
 	#Install the Miniconda Python pachages manager
 	echo "Next, the Miniconda package will be downloaded and installed at the folder ${conda_home}."
@@ -19,6 +19,7 @@ function conda_install(){
 
 }
 conda_install
+${conda_home}/bin/conda remove --all -n ensembl-vep
 ${conda_home}/bin/conda create -y -n ensembl-vep
 ${conda_home}/bin/conda install -n ensembl-vep -y -c bioconda perl-dbi perl-dbd-mysql perl-archive-zip perl-json perl-set-intervaltree perl-bio-bigfile
 ${conda_home}/bin/conda install -n ensembl-vep -y -c bioconda curl htslib perl-bio-db-hts libcurl libssh2 perl-base perl-cgi perl-compress-raw-bzip2
